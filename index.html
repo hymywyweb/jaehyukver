@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>jaehyuk ver</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      :root {
+        --primary-color: rgb(8, 8, 8);
+        --secondary-color: #fff8e1;
+        --accent-color: #ff6f61;
+        --text-color: #333;
+        --border-radius: 20px;
+        --box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--secondary-color);
+        font-family: "Quicksand", sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        overflow-x: hidden;
+        color: var(--text-color);
+      }
+
+      h1 {
+        font-family: "Pacifico", cursive;
+        color: var(--primary-color);
+        margin: 20px 0;
+        font-size: 3em;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 40px;
+        justify-content: center;
+        align-items: flex-start;
+        margin-bottom: 20px;
+      }
+
+      .video-container {
+        position: relative;
+        width: 640px;
+        height: 480px;
+        border: 6px solid var(--primary-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        background: #000;
+        box-shadow: var(--box-shadow);
+      }
+
+      video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scaleX(-1);
+      }
+
+      #frameOverlay,
+      #countdown {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      #frameOverlay {
+        opacity: 0.9;
+        z-index: 3;
+        object-fit: fill;
+        pointer-events: none;
+      }
+
+      #sticker {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        z-index: 2;
+        cursor: default;
+        pointer-events: none;
+      }
+
+      #countdown {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 90px;
+        color: rgb(255, 166, 228);
+        font-weight: bold;
+        text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+        display: none;
+        z-index: 4;
+        animation: pulse 1s infinite alternate;
+        pointer-events: none;
+      }
+
+      @keyframes pulse {
+        from {
+          transform: scale(1);
+          opacity: 1;
+        }
+        to {
+          transform: scale(1.1);
+          opacity: 0.8;
+        }
+      }
+
+      .strip {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        border: 6px solid var(--primary-color);
+        border-radius: var(--border-radius);
+        background: #d377a5;
+        padding: 15px;
+        box-shadow: var(--box-shadow);
+        min-width: 150px;
+      }
+
+      .strip img {
+        width: 180px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1px solid #eee;
+        background: #eee;
+        transition: transform 0.2s ease-in-out;
+      }
+
+      .strip img:hover {
+        transform: scale(1.03);
+      }
+
+      .controls {
+        margin: 30px 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+      }
+
+      button {
+        background: var(--primary-color);
+        color: #fff;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 30px;
+        cursor: pointer;
+        font-size: 1.1em;
+        font-weight: bold;
+        transition: background 0.3s ease, transform 0.2s ease,
+          box-shadow 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      button:hover {
+        background: var(--accent-color);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      button:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .options-panel {
+        background: #fff;
+        border: 4px solid var(--primary-color);
+        border-radius: var(--border-radius);
+        padding: 20px;
+        margin-top: 20px;
+        box-shadow: var(--box-shadow);
+        text-align: center;
+        width: 80%;
+        max-width: 600px;
+        pointer-events: auto;
+      }
+
+      .options-panel h3 {
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        font-size: 1.5em;
+      }
+
+      .sticker-selection,
+      .frame-selection,
+      .timer-selection {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        pointer-events: auto;
+      }
+
+      .sticker-selection img,
+      .frame-selection img {
+        width: 60px;
+        height: 60px;
+        border: 3px solid transparent;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+      }
+
+      .sticker-selection img:hover,
+      .frame-selection img:hover {
+        transform: scale(1.1);
+      }
+
+      .sticker-selection img.selected,
+      .frame-selection img.selected {
+        border-color: var(--accent-color);
+        transform: scale(1.1);
+        box-shadow: 0 0 10px rgba(255, 111, 97, 0.5);
+      }
+
+      .timer-selection button {
+        background: #eee;
+        color: var(--text-color);
+        border: 2px solid var(--primary-color);
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: normal;
+        transition: background 0.2s ease, color 0.2s ease;
+      }
+
+      .timer-selection button.selected {
+        background: var(--primary-color);
+        color: #fff;
+      }
+
+      .timer-info {
+        font-size: 1.1em;
+        color: var(--text-color);
+        margin-top: 10px;
+      }
+
+      /* Responsive */
+      @media (max-width: 1024px) {
+        .container {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .video-container {
+          width: 80vw;
+          height: calc(80vw * (3 / 4));
+          max-width: 640px;
+          max-height: calc(640px * (3 / 4));
+        }
+
+        .strip img {
+          width: 140px;
+          height: 95px;
+        }
+
+        button {
+          width: 80%;
+          max-width: 300px;
+        }
+      }
+
+      /* (<= 768px) */
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2.5em;
+        }
+        .video-container {
+          width: 90vw;
+          height: calc(90vw * (4 / 3));
+          max-width: 400px;
+        }
+
+        .strip {
+          flex-direction: row;
+          flex-wrap: wrap;
+          justify-content: center;
+          width: 90vw;
+          min-width: unset;
+        }
+
+        .strip img {
+          width: 90px;
+          height: 60px;
+        }
+
+        button {
+          width: 90%;
+        }
+      }
+
+      /* Very Small Screens (<= 480px) */
+      @media (max-width: 480px) {
+        h1 {
+          font-size: 2em;
+        }
+        .video-container {
+          width: 95vw;
+          height: calc(95vw * (4 / 3));
+          max-width: 320px;
+        }
+
+        .strip img {
+          width: 70px;
+          height: 45px;
+        }
+
+        button {
+          font-size: 0.9rem;
+          padding: 8px 16px;
+        }
+
+        .options-panel {
+          padding: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>PHOTO BOOTH</h1>
+
+    <div class="container">
+      <div class="video-container" id="cameraBox">
+        <video id="video" autoplay playsinline></video>
+        <img id="frameOverlay" src="" alt="frame" />
+        <img id="sticker" src="" />
+        <div id="countdown"></div>
+      </div>
+      <div class="strip" id="photoStrip">
+        <img src="" />
+        <img src="" />
+        <img src="" />
+        <img id="bottomImage" src="" alt="bottom_image" />
+      </div>
+    </div>
+
+    <div class="options-panel">
+      <h3>Pilih Frame</h3>
+      <div class="frame-selection" id="frameSelection">
+        <img
+          src="frames/frame1.png"
+          data-frame-id="frame1"
+          data-bottom-src="bottoms/bottom1.png"
+          class="selected"
+          alt="Frame 1"
+        />
+        <img
+          src="frames/frame2.png"
+          data-frame-id="frame2"
+          data-bottom-src="bottoms/bottom2.png"
+          alt="Frame 2"
+        />
+        <img
+          src="frames/frame3.png"
+          data-frame-id="frame3"
+          data-bottom-src="bottoms/bottom3.png"
+          alt="Frame 3"
+        />
+        <img
+          src="frames/frame4.png"
+          data-frame-id="frame4"
+          data-bottom-src="bottoms/bottom4.png"
+          alt="Frame 4"
+        />
+        <img
+          src="frames/frame5.png"
+          data-frame-id="frame5"
+          data-bottom-src="bottoms/bottom5.png"
+          alt="Frame 5"
+        />
+        <img
+          src="frames/frame6.png"
+          data-frame-id="frame6"
+          data-bottom-src="bottoms/bottom6.png"
+          alt="Frame 6"
+        />
+        <img
+          src="frames/frame7.png"
+          data-frame-id="frame7"
+          data-bottom-src="bottoms/bottom7.png"
+          alt="Frame 7"
+        />
+        <img
+          src="frames/frame8.png"
+          data-frame-id="frame8"
+          data-bottom-src="bottoms/bottom8.png"
+          alt="Frame 8"
+        />
+        <img
+          src="frames/frame9.png"
+          data-frame-id="frame9"
+          data-bottom-src="bottoms/bottom9.png"
+          alt="Frame 9"
+        />
+        <img
+          src="frames/frame10.png"
+          data-frame-id="frame10"
+          data-bottom-src="bottoms/bottom10.png"
+          alt="Frame 10"
+        />
+        <img
+          src="frames/frame11.png"
+          data-frame-id="frame11"
+          data-bottom-src="bottoms/bottom11.png"
+          alt="Frame 11"
+        />
+      </div>
+
+      <h3>Pilih Stiker</h3>
+      <div class="sticker-selection" id="stickerSelection">
+        <img
+          src="stickers/sticker1.png"
+          data-sticker-id="sticker1"
+          alt="Sticker 1"
+        />
+        <img
+          src="stickers/sticker2.png"
+          data-sticker-id="sticker2"
+          alt="Sticker 2"
+        />
+        <img
+          src="stickers/sticker3.png"
+          data-sticker-id="sticker3"
+          alt="Sticker 3"
+        />
+        <img
+          src="stickers/sticker4.png"
+          data-sticker-id="sticker4"
+          alt="Sticker 4"
+        />
+        <img
+          src="stickers/sticker5.png"
+          data-sticker-id="sticker5"
+          alt="Sticker 5"
+        />
+        <img
+          src="stickers/sticker7.png"
+          data-sticker-id="sticker7"
+          alt="Sticker 7"
+        />
+        <img
+          src="stickers/sticker8.png"
+          data-sticker-id="sticker8"
+          alt="Sticker 8"
+        />
+        <img
+          src="stickers/sticker9.png"
+          data-sticker-id="sticker9"
+          alt="Sticker 9"
+        />
+      </div>
+
+      <h3>Atur Timer Per Jepretan</h3>
+      <div class="timer-selection" id="timerSelection">
+        <button data-timer="3" class="selected">3s</button>
+        <button data-timer="5">5s</button>
+        <button data-timer="7">7s</button>
+      </div>
+      <p class="timer-info">
+        Timer saat ini: <span id="currentTimer">3</span> detik
+      </p>
+    </div>
+
+    <div class="controls">
+      <button id="start">Mulai Jepret</button>
+      <button id="nextSnap" style="display: none">
+        Jepret Selanjutnya (1/3)
+      </button>
+      <button id="download">Unduh Photostrip</button>
+    </div>
+
+    <canvas id="hiddenCanvas" style="display: none"></canvas>
+    <canvas id="downloadCanvas" style="display: none"></canvas>
+
+    <script>
+      const video = document.getElementById("video");
+      const frameOverlay = document.getElementById("frameOverlay");
+      const sticker = document.getElementById("sticker");
+      const countdownElement = document.getElementById("countdown");
+      const bottomImageElement = document.getElementById("bottomImage");
+      const photoStripImages = Array.from(
+        document.querySelectorAll("#photoStrip img:not(#bottomImage)")
+      );
+
+      const hiddenCanvas = document.getElementById("hiddenCanvas");
+      const hiddenCtx = hiddenCanvas.getContext("2d");
+      const downloadCanvas = document.getElementById("downloadCanvas");
+      const downloadCtx = downloadCanvas.getContext("2d");
+      const cameraBox = document.getElementById("cameraBox");
+      const stickerSelection = document.getElementById("stickerSelection");
+      const frameSelection = document.getElementById("frameSelection");
+      const timerSelection = document.getElementById("timerSelection");
+      const currentTimerDisplay = document.getElementById("currentTimer");
+      const startButton = document.getElementById("start");
+      const nextSnapButton = document.getElementById("nextSnap");
+      const downloadButton = document.getElementById("download");
+
+      let currentCountdownTime = 3;
+      let cameraReady = false;
+      let frameLoaded = false;
+      let bottomImageLoaded = false;
+      let stickerLoaded = false;
+      let currentSnap = 0;
+
+      function initializeCamera() {
+        navigator.mediaDevices
+          .getUserMedia({
+            video: {
+              width: { ideal: 1280 },
+              height: { ideal: 960 },
+              facingMode: "user",
+            },
+          })
+          .then((stream) => {
+            video.srcObject = stream;
+            video.onloadedmetadata = () => {
+              video.play();
+              console.log(
+                `[INIT] Video native resolution: ${video.videoWidth}x${video.videoHeight}`
+              );
+              cameraReady = true;
+              checkReadyState();
+            };
+          })
+          .catch((err) => {
+            console.error("[INIT] Error accessing camera: ", err);
+            alert(
+              "Gagal mengakses kamera. Pastikan Anda memberikan izin dan tidak ada aplikasi lain yang menggunakan kamera."
+            );
+            startButton.disabled = true;
+          });
+      }
+
+      function checkReadyState() {
+        console.log(`
+          [READY CHECK]
+          Camera Ready: ${cameraReady}
+          Frame Loaded: ${frameLoaded}
+          Bottom Image Loaded: ${bottomImageLoaded}
+          Sticker Loaded: ${stickerLoaded}
+        `);
+        if (cameraReady && frameLoaded && bottomImageLoaded && stickerLoaded) {
+          startButton.disabled = false;
+          console.log(
+            "[READY] Kamera, frame, bottom image, dan stiker siap! Tombol 'Mulai Jepret' aktif."
+          );
+        } else {
+          startButton.disabled = true;
+          console.log("[READY] Menunggu aset siap...");
+        }
+      }
+
+      function startCountdown(time) {
+        countdownElement.style.display = "flex";
+        let c = time;
+        countdownElement.innerText = c;
+
+        return new Promise((res) => {
+          const interval = setInterval(() => {
+            c--;
+            countdownElement.innerText = c;
+            if (c === 0) {
+              clearInterval(interval);
+              countdownElement.style.display = "none";
+              res();
+            }
+          }, 1000);
+        });
+      }
+
+      async function performSingleCapture() {
+        if (
+          !cameraReady ||
+          !frameLoaded ||
+          !bottomImageLoaded ||
+          !stickerLoaded
+        ) {
+          alert(
+            "Sistem belum siap. Pastikan kamera diizinkan dan semua aset (frame/bottom image/stiker) sudah dimuat."
+          );
+          return;
+        }
+
+        startButton.disabled = true;
+        nextSnapButton.disabled = true;
+        downloadButton.disabled = true;
+
+        stickerSelection.style.pointerEvents = "none";
+        frameSelection.style.pointerEvents = "none";
+        timerSelection.style.pointerEvents = "none";
+
+        if (currentSnap < 3) {
+          await startCountdown(currentCountdownTime);
+
+          const renderedWidth = cameraBox.offsetWidth;
+          const renderedHeight = cameraBox.offsetHeight;
+          const dpi = window.devicePixelRatio || 1;
+
+          hiddenCanvas.width = renderedWidth * dpi;
+          hiddenCanvas.height = renderedHeight * dpi;
+
+          console.log(`--- CAPTURE ${currentSnap + 1}/3 ---`);
+          console.log(
+            `Rendered cameraBox size: ${renderedWidth}x${renderedHeight} (DPI: ${dpi})`
+          );
+          console.log(
+            `Hidden Canvas size for capture: ${hiddenCanvas.width}x${hiddenCanvas.height}`
+          );
+
+          hiddenCtx.clearRect(0, 0, hiddenCanvas.width, hiddenCanvas.height);
+
+          const videoRatio = video.videoWidth / video.videoHeight;
+          const canvasRatio = hiddenCanvas.width / hiddenCanvas.height;
+          let sx, sy, sWidth, sHeight;
+          let dx, dy, dWidth, dHeight;
+
+          if (videoRatio > canvasRatio) {
+            sHeight = video.videoHeight;
+            sWidth = video.videoHeight * canvasRatio;
+            sx = (video.videoWidth - sWidth) / 2;
+            sy = 0;
+          } else {
+            sWidth = video.videoWidth;
+            sHeight = video.videoWidth / canvasRatio;
+            sx = 0;
+            sy = (video.videoHeight - sHeight) / 2;
+          }
+
+          dx = 0;
+          dy = 0;
+          dWidth = hiddenCanvas.width;
+          dHeight = hiddenCanvas.height;
+
+          hiddenCtx.save();
+          hiddenCtx.scale(-1, 1);
+          hiddenCtx.drawImage(
+            video,
+            sx,
+            sy,
+            sWidth,
+            sHeight,
+            -dWidth,
+            dy,
+            dWidth,
+            dHeight
+          );
+          hiddenCtx.restore();
+
+          if (sticker.src && !sticker.src.includes("data:,")) {
+            const stickerNaturalWidth = sticker.naturalWidth;
+            const stickerNaturalHeight = sticker.naturalHeight;
+            const stickerAspectRatio =
+              stickerNaturalWidth / stickerNaturalHeight;
+
+            let stickerDrawWidth;
+            let stickerDrawHeight;
+            let stickerDrawX;
+            let stickerDrawY;
+
+            const targetCanvasAspectRatio =
+              hiddenCanvas.width / hiddenCanvas.height;
+
+            if (stickerAspectRatio > targetCanvasAspectRatio) {
+              stickerDrawWidth = hiddenCanvas.width;
+              stickerDrawHeight = hiddenCanvas.width / stickerAspectRatio;
+              stickerDrawX = 0;
+              stickerDrawY = (hiddenCanvas.height - stickerDrawHeight) / 2;
+            } else {
+              stickerDrawHeight = hiddenCanvas.height;
+              stickerDrawWidth = hiddenCanvas.height * stickerAspectRatio;
+              stickerDrawX = (hiddenCanvas.width - stickerDrawWidth) / 2;
+              stickerDrawY = 0;
+            }
+
+            hiddenCtx.drawImage(
+              sticker,
+              stickerDrawX,
+              stickerDrawY,
+              stickerDrawWidth,
+              stickerDrawHeight
+            );
+          }
+
+          //frame overlay terakhir
+          hiddenCtx.drawImage(
+            frameOverlay,
+            0,
+            0,
+            hiddenCanvas.width,
+            hiddenCanvas.height
+          );
+
+          photoStripImages[currentSnap].src =
+            hiddenCanvas.toDataURL("image/png");
+
+          currentSnap++;
+
+          if (currentSnap < 3) {
+            nextSnapButton.innerText = `Jepret Selanjutnya (${
+              currentSnap + 1
+            }/3)`;
+            nextSnapButton.style.display = "block";
+            nextSnapButton.disabled = false;
+            stickerSelection.style.pointerEvents = "auto";
+            frameSelection.style.pointerEvents = "auto";
+            timerSelection.style.pointerEvents = "auto";
+          } else {
+            nextSnapButton.style.display = "none";
+            startButton.innerText = "Mulai Ulang";
+            startButton.style.display = "block";
+            startButton.disabled = false;
+            downloadButton.disabled = false;
+
+            stickerSelection.style.pointerEvents = "auto";
+            frameSelection.style.pointerEvents = "auto";
+            timerSelection.style.pointerEvents = "auto";
+
+            console.log(
+              "[INFO] 3 foto dari kamera sudah diambil. Bottom image otomatis terisi."
+            );
+          }
+        }
+      }
+
+      function startCaptureProcess() {
+        currentSnap = 0;
+        photoStripImages[0].src = "";
+        photoStripImages[1].src = "";
+        photoStripImages[2].src = "";
+
+        startButton.style.display = "none";
+        nextSnapButton.style.display = "block";
+        nextSnapButton.innerText = `Jepret Selanjutnya (1/3)`;
+        nextSnapButton.disabled = false;
+        downloadButton.disabled = true;
+
+        performSingleCapture();
+      }
+
+      async function downloadPhotoStrip() {
+        if (
+          photoStripImages[0].src === "" ||
+          photoStripImages[1].src === "" ||
+          photoStripImages[2].src === ""
+        ) {
+          alert(
+            "Ambil semua 3 foto dari kamera terlebih dahulu sebelum mengunduh!"
+          );
+          return;
+        }
+
+        const photoStripWidth = 565;
+
+        let allImagesToDraw = [];
+        for (let i = 0; i < 3; i++) {
+          if (
+            photoStripImages[i].src &&
+            !photoStripImages[i].src.includes("data:,")
+          ) {
+            allImagesToDraw.push(photoStripImages[i]);
+          }
+        }
+
+        if (
+          bottomImageElement.src &&
+          !bottomImageElement.src.includes("data:,")
+        ) {
+          allImagesToDraw.push(bottomImageElement);
+        }
+
+        let calculatedPhotoHeights = [];
+        let totalStripHeight = 0;
+
+        for (const imgElement of allImagesToDraw) {
+          const tempImg = new Image();
+          tempImg.src = imgElement.src;
+          await new Promise((resolve) => {
+            tempImg.onload = resolve;
+            tempImg.onerror = () => {
+              console.error(`gagal image load: ${tempImg.src}`);
+              resolve();
+            };
+          });
+
+          if (tempImg.complete && tempImg.naturalWidth > 0) {
+            const imgAspectRatio = tempImg.naturalWidth / tempImg.naturalHeight;
+            const targetPhotoHeight = photoStripWidth / imgAspectRatio;
+            calculatedPhotoHeights.push(targetPhotoHeight);
+            totalStripHeight += targetPhotoHeight;
+          } else {
+            calculatedPhotoHeights.push(0);
+          }
+        }
+
+        downloadCanvas.width = photoStripWidth;
+        downloadCanvas.height = totalStripHeight;
+
+        downloadCtx.fillStyle = "#FFFFFF";
+        downloadCtx.fillRect(0, 0, downloadCanvas.width, downloadCanvas.height);
+
+        let currentY = 0;
+
+        for (let i = 0; i < allImagesToDraw.length; i++) {
+          const imgElement = allImagesToDraw[i];
+          const targetPhotoHeight = calculatedPhotoHeights[i];
+
+          if (
+            imgElement.src &&
+            !imgElement.src.includes("data:,") &&
+            targetPhotoHeight > 0
+          ) {
+            const imgToDraw = new Image();
+            imgToDraw.src = imgElement.src;
+            await new Promise((resolve) => {
+              imgToDraw.onload = resolve;
+              imgToDraw.onerror = () => {
+                console.error(
+                  `Failed to load image for drawing: ${imgToDraw.src}`
+                );
+                resolve();
+              };
+            });
+
+            if (imgToDraw.complete && imgToDraw.naturalWidth > 0) {
+              downloadCtx.drawImage(
+                imgToDraw,
+                0,
+                currentY,
+                photoStripWidth,
+                targetPhotoHeight
+              );
+            }
+          }
+          currentY += targetPhotoHeight;
+        }
+
+        const link = document.createElement("a");
+        link.download = "photostrip.jpg";
+        link.href = downloadCanvas.toDataURL("image/jpeg", 0.9);
+        link.click();
+      }
+
+      stickerSelection.addEventListener("click", (e) => {
+        if (e.target.tagName === "IMG") {
+          Array.from(stickerSelection.children).forEach((img) =>
+            img.classList.remove("selected")
+          );
+          e.target.classList.add("selected");
+
+          stickerLoaded = false;
+          sticker.src = e.target.src;
+          sticker.onload = () => {
+            stickerLoaded = true;
+            console.log(
+              `[STIKER CHANGE] Sticker load. Natural size: ${sticker.naturalWidth}x${sticker.naturalHeight}`
+            );
+            checkReadyState();
+          };
+
+          if (sticker.complete) {
+            stickerLoaded = true;
+            console.log(
+              `[STIKER CHANGE] (load cache). Natural size: ${sticker.naturalWidth}x${sticker.naturalHeight}`
+            );
+            checkReadyState();
+          }
+        }
+      });
+
+      frameSelection.addEventListener("click", (e) => {
+        if (e.target.tagName === "IMG") {
+          Array.from(frameSelection.children).forEach((img) =>
+            img.classList.remove("selected")
+          );
+          e.target.classList.add("selected");
+
+          frameLoaded = false;
+          bottomImageLoaded = false;
+
+          frameOverlay.src = e.target.src;
+          frameOverlay.onload = () => {
+            frameLoaded = true;
+            checkReadyState();
+          };
+          if (frameOverlay.complete) {
+            frameLoaded = true;
+          }
+
+          const bottomSrc = e.target.dataset.bottomSrc;
+          bottomImageElement.src = bottomSrc;
+          bottomImageElement.onload = () => {
+            bottomImageLoaded = true;
+            checkReadyState();
+          };
+          if (bottomImageElement.complete) {
+            bottomImageLoaded = true;
+          }
+          checkReadyState();
+        }
+      });
+
+      timerSelection.addEventListener("click", (e) => {
+        if (e.target.tagName === "BUTTON") {
+          Array.from(timerSelection.children).forEach((btn) =>
+            btn.classList.remove("selected")
+          );
+          e.target.classList.add("selected");
+
+          currentCountdownTime = parseInt(e.target.dataset.timer);
+          currentTimerDisplay.innerText = currentCountdownTime;
+          console.log(`Timer set to ${currentCountdownTime} seconds.`);
+        }
+      });
+
+      startButton.onclick = startCaptureProcess;
+      downloadButton.onclick = downloadPhotoStrip;
+      nextSnapButton.onclick = performSingleCapture;
+
+      // Inisialisasi kamera saat halaman dimuat
+      initializeCamera();
+
+      // Inisialisasi frame dan bottom default
+      const defaultFrame = document.querySelector(
+        "#frameSelection img.selected"
+      );
+      if (defaultFrame) {
+        frameOverlay.src = defaultFrame.src;
+        frameOverlay.onload = () => {
+          frameLoaded = true;
+          console.log("[INIT] Default frame loaded.");
+          checkReadyState();
+        };
+        if (frameOverlay.complete) {
+          frameLoaded = true;
+          console.log("[INIT] Default frame already loaded (from cache).");
+        }
+
+        const defaultBottomSrc = defaultFrame.dataset.bottomSrc;
+        bottomImageElement.src = defaultBottomSrc;
+        bottomImageElement.onload = () => {
+          bottomImageLoaded = true;
+          console.log("[INIT] Default bottom image loaded.");
+          checkReadyState();
+        };
+        if (bottomImageElement.complete) {
+          bottomImageLoaded = true;
+          console.log(
+            "[INIT] Default bottom image already loaded (from cache)."
+          );
+        }
+      } else {
+        console.warn("[INIT] No default frame selected. Please check HTML.");
+        frameLoaded = false;
+        bottomImageLoaded = false;
+      }
+
+      sticker.src = "";
+      stickerLoaded = true;
+      console.log("[INIT] default");
+
+      checkReadyState();
+    </script>
+  </body>
+</html>

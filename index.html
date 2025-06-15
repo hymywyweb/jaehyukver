@@ -260,17 +260,15 @@
       }
 
       /* Responsive */
-      @media (max-width: 1024px) {
+        @media (max-width: 1024px) {
         .container {
           flex-direction: column;
           align-items: center;
         }
 
         .video-container {
-          width: 80vw;
-          height: calc(80vw * (3 / 4));
-          max-width: 640px;
-          max-height: calc(640px * (3 / 4));
+          width: 480px;
+          height: 400px;
         }
 
         .strip img {
@@ -284,28 +282,17 @@
         }
       }
 
-      /* (<= 768px) */
+      /* Smartphone & Phablet (<= 768px) */
       @media (max-width: 768px) {
-        h1 {
-          font-size: 2.5em;
-        }
         .video-container {
-          width: 90vw;
-          height: calc(90vw * (4 / 3));
+          width: 100%;
           max-width: 400px;
-        }
-
-        .strip {
-          flex-direction: row;
-          flex-wrap: wrap;
-          justify-content: center;
-          width: 90vw;
-          min-width: unset;
+          height: 300px;
         }
 
         .strip img {
-          width: 90px;
-          height: 60px;
+          width: 120px;
+          height: 80px;
         }
 
         button {
@@ -315,27 +302,20 @@
 
       /* Very Small Screens (<= 480px) */
       @media (max-width: 480px) {
-        h1 {
-          font-size: 2em;
-        }
         .video-container {
-          width: 95vw;
-          height: calc(95vw * (4 / 3));
-          max-width: 320px;
+          width: 100%;
+          max-width: 340px;
+          height: 240px;
         }
 
         .strip img {
-          width: 70px;
-          height: 45px;
+          width: 100px;
+          height: 70px;
         }
 
         button {
           font-size: 0.9rem;
           padding: 8px 16px;
-        }
-
-        .options-panel {
-          padding: 15px;
         }
       }
     </style>
